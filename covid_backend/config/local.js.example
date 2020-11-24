@@ -1,0 +1,30 @@
+const { v4: uuidv4 } = require('uuid');
+
+module.exports = {
+	models: {
+		migrate: 'safe',
+		datastore: 'mysql',
+
+		beforeCreate: function (valuesToSet, proceed) {
+			valuesToSet.uuid = uuidv4();
+			return proceed();
+		}
+	},
+
+	datastores: {
+		mysql: {
+			adapter: 'sails-mysql',
+			host: 'database',
+			port: 3306,
+			user: 'root',
+			password: 'root',
+			database: 'covid_test',
+
+			// Optional
+			charset: 'utf8',
+			collation: 'utf8_unicode_ci'
+		}
+	},
+
+	
+};

@@ -1,0 +1,354 @@
+<div class="card card-custom gutter-b">
+  <ng-container *ngIf="isLoading$ | async">
+    <div class="progress progress-modal">
+      <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
+        style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </ng-container>
+
+  <div class="card-header">
+    <div class="card-title">
+      <h3 class="card-label">
+        <ng-container *ngIf="!product.id">
+          New Order
+        </ng-container>
+        <ng-container *ngIf="product.id">
+          Edit Order
+        </ng-container>
+      </h3>
+    </div>
+    <div class="card-toolbar">
+      <a type="button" class="btn btn-light" routerLink="/ecommerce/products">
+        <i class="fa fa-arrow-left"></i>Back
+      </a>
+      <button class="btn btn-secondary ml-2" (click)="reset()">
+        <i class="fa fa-redo"></i>Reset
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+
+    <!--Select Patient here -->
+
+
+
+
+
+    <ng-container>
+      <div class="mt-5" style="border-bottom: 1px solid #ddd; overflow: hidden;">
+        <div class="form-group row">
+          <div class="col-lg-6">
+            <label>Select Patient:</label>
+            <select
+              class="form-control"
+              [(ngModel)]="selectedPatient"
+              (change)="onChange($event.target.value)"
+            >
+              <option *ngFor="let patient of listPatients"
+                        [value]="patient.uuid" >
+              {{ patient.patient_identifier}} - {{patient.first_name}} {{patient.last_name}}
+              </option>
+            </select>
+          </div>
+        </div>
+        <h3 class="card-label" >
+          <ng-container>
+            Patient Information
+          </ng-container>
+        </h3>
+        <br>
+        <form action="#" class="form form-label-right" [formGroup]="formGroupPatient" (ngSubmit)="createPatient()">
+          <div class="form-group row">
+            <div class="col-lg-4">
+              <label class="form-label">Enter Patient Identifiers</label>
+              <input type="text" class="form-control form-control-lg form-control-solid" name="patient_identifier"
+                placeholder="Identifiers" autocomplete="off" [class.is-invalid]="isControlInvalid('patient_identifier')"
+                [class.is-valid]="isControlValid('patient_identifier')" formControlName="patient_identifier" />
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'patient_identifier')">Patient Identifiers is required</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('maxLength', 'patient_identifier')">Patient Identifiers should have
+                maximum 100 symbols</div>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label">Enter Patient  First name</label>
+              <input type="text" class="form-control form-control-lg form-control-solid" name="first_name"
+                placeholder="First Name" autocomplete="off" [class.is-invalid]="isControlInvalid('first_name')"
+                [class.is-valid]="isControlValid('first_name')" formControlName="first_name" />
+              <div class="valid-feedback" *ngIf="isControlValid('first_name')">First name was entered correct</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'first_name')">First name is required</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('minlength', 'first_name')">First name should have at
+                least 3 symbols</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('maxLength', 'first_name')">First name should have
+                maximum 100 symbols</div>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label">Enter Patient  Last name</label>
+              <input type="text" class="form-control form-control-lg form-control-solid  is-invalid" name="last_name"
+                placeholder="Last Name" autocomplete="off" [class.is-invalid]="isControlInvalid('last_name')"
+                [class.is-valid]="isControlValid('last_name')" formControlName="last_name" />
+              <div class="valid-feedback" *ngIf="isControlValid('last_name')">Last name was entered correct</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'last_name')">Last name is required</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('minlength', 'last_name')">Last name should have at
+                least 3 symbols</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('maxLength', 'last_name')">Last name should have maximum
+                100 symbols</div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-4">
+              <label class="form-label">Enter Patient  Middle Initial (Optional)</label>
+              <input type="text" class="form-control form-control-lg form-control-solid" name="middle_initial"
+                placeholder="Middle Initial" autocomplete="off" formControlName="middle_initial" />
+            </div>
+            <div class="col-lg-4">
+              <label>Select Patient  Gender</label>
+              <select class="form-control form-control-lg form-control-solid" name="gender"
+                [class.is-invalid]="isControlInvalid('gender')" formControlName="gender">
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+                <option value="Unknown">Unknown</option>
+              </select>
+              <div class="feedback">Please select <b>Gender</b></div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'gender')">Gender is required</div>
+            </div>
+            <div class="col-lg-4">
+              <label>Date of Birth</label>
+              <div class="input-group input-group-solid">
+                <input type="text" name="dob" class="form-control form-control-lg form-control-solid" autocomplete="off"
+                  placeholder="yyyy/mm/dd" ngbDatepicker #d="ngbDatepicker" [class.is-invalid]="isControlInvalid('dob')"
+                  [class.is-valid]="isControlValid('dob')" formControlName="dob" readonly="true" />
+                <div class="input-group-append" (click)="d.toggle()">
+                  <span class="input-group-text">
+                    <i class="text-dark-50 flaticon-calendar"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="valid-feedback" *ngIf="isControlValid('dob')">Date of Birth was entered correct</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'dob')">Please enter <b>Date of Birth</b>
+                in 'yyyy/mm/dd' format</div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-4">
+              <label>Select Patient  Race</label>
+              <select class="form-control form-control-lg form-control-solid" name="race"
+                [class.is-invalid]="isControlInvalid('race')" formControlName="race">
+                <option value="2106-3">White</option>
+                <option value="1002-5">American Indian or Alaska Native</option>
+                <option value="2028-9">Asian</option>
+                <option value="2054-5">Black or African American</option>
+                <option value="2076-8">Native Hawaiian or Other Pacific Islander</option>
+                <option value="2131-1">Other Race</option>
+              </select>
+              <div class="feedback">Please select <b>Race</b></div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'race')">Race is required</div>
+            </div>
+            <div class="col-lg-4">
+              <label>Select Patient  Ethnicity</label>
+              <select class="form-control form-control-lg form-control-solid" name="ethnicity"
+                [class.is-invalid]="isControlInvalid('ethnicity')" formControlName="ethnicity">
+                <option value="H">Hispanic or Latino</option>
+                <option value="N">Not Hispanic or Latino</option>
+                <option value="U">Unknown</option>
+              </select>
+              <div class="feedback">Please select <b>Ethnicity</b></div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'ethnicity')">Ethnicity is required</div>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label">Enter Language (Optional)</label>
+              <input type="text" class="form-control form-control-lg form-control-solid" name="language"
+                placeholder="Language" autocomplete="off" formControlName="language" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-4">
+              <label class="form-label">Enter Patient Street Address</label>
+              <input type="text" class="form-control form-control-lg form-control-solid  is-invalid" name="street_address"
+                placeholder="Street Address" autocomplete="off" [class.is-invalid]="isControlInvalid('street_address')"
+                [class.is-valid]="isControlValid('street_address')" formControlName="street_address" />
+              <div class="valid-feedback" *ngIf="isControlValid('street_address')">Street Address was entered correct</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'street_address')">Street Address is required</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('maxLength', 'street_address')">Street Address should have maximum
+                100 symbols</div>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label">Enter Patient City</label>
+              <input type="text" class="form-control form-control-lg form-control-solid  is-invalid" name="city"
+                placeholder="City" autocomplete="off" [class.is-invalid]="isControlInvalid('city')"
+                [class.is-valid]="isControlValid('city')" formControlName="city" />
+              <div class="valid-feedback" *ngIf="isControlValid('city')">City was entered correct</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'city')">City is required</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('maxLength', 'city')">City should have maximum
+                100 symbols</div>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label">Enter Patient State</label>
+              <input type="text" class="form-control form-control-lg form-control-solid  is-invalid" name="state"
+                placeholder="State" autocomplete="off" [class.is-invalid]="isControlInvalid('state')"
+                [class.is-valid]="isControlValid('state')" formControlName="state" />
+              <div class="valid-feedback" *ngIf="isControlValid('state')">State was entered correct</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'state')">State is required</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('maxLength', 'state')">State should have maximum
+                100 symbols</div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-4">
+              <label class="form-label">Enter Patient ZIP</label>
+              <input type="text" class="form-control form-control-lg form-control-solid  is-invalid" name="zip"
+                placeholder="ZIP" autocomplete="off" [class.is-invalid]="isControlInvalid('zip')"
+                [class.is-valid]="isControlValid('zip')" formControlName="zip" />
+              <div class="valid-feedback" *ngIf="isControlValid('zip')">ZIP was entered correct</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'zip')">ZIP is required</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('maxLength', 'zip')">ZIP should have maximum
+                100 symbols</div>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label">Enter Patient Country</label>
+              <input type="text" class="form-control form-control-lg form-control-solid  is-invalid" name="country"
+                placeholder="Country" autocomplete="off" [class.is-invalid]="isControlInvalid('country')"
+                [class.is-valid]="isControlValid('country')" formControlName="country" />
+              <div class="valid-feedback" *ngIf="isControlValid('country')">Country was entered correct</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('required', 'country')">Country is required</div>
+              <div class="invalid-feedback" *ngIf="controlHasError('maxLength', 'country')">Country should have maximum
+                100 symbols</div>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label">Enter Patient Phone Number (Optional)</label>
+              <input type="text" class="form-control form-control-lg form-control-solid  is-invalid" name="phone_number"
+                placeholder="Phone Number" autocomplete="off" [class.is-invalid]="isControlInvalid('phone_number')"
+                [class.is-valid]="isControlValid('phone_number')" formControlName="phone_number" />
+              <div class="invalid-feedback" *ngIf="controlHasError('pattern', 'phone_number')">Phone Number must be number</div>
+              
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-4">
+              <label class="form-label">Is it OK to Contact to the Patient? (Optional)</label>
+              <select class="form-control form-control-lg form-control-solid" name="allow_contact"
+                [class.is-invalid]="isControlInvalid('allow_contact')" formControlName="allow_contact">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+              </select>
+              <div class="feedback">Please select <b>Yes/No</b></div>
+            </div>
+            
+          </div>
+          <div class="float-right mb-2">
+            <button type="submit" class="btn btn-primary font-weight-bold mr-2"
+              [disabled]="formGroupPatient.invalid">Save Patient</button>
+          </div>
+          
+        </form>
+      </div>
+      <div class="mt-5">
+        <h3 class="card-label">
+          <ng-container>
+            Order Information
+          </ng-container>
+        </h3>
+        <br>
+        <!-- <form action="#" class="form form-label-right" [formGroup]="formGroup"> -->
+        <form action="#" class="form form-label-right" (ngSubmit)="save()">
+          <div class="form-group row">
+            <div class="col-lg-4">
+              <label class="form-label">Diagnosis (ICD-10) Codes</label>
+              <div style="overflow-y: scroll; width: 100%; height: 180px;">
+                <div class="form-check form-check pt-3">
+                  <input class="form-check-input" (change)="checkValueDiagnosis($event.target.value)" type="checkbox" id="_R50.9 Fever, Unspecified" value="_R50.9 Fever, Unspecified">
+                  <label class="form-check-label" for="_R50.9 Fever, Unspecified">_R50.9 Fever, Unspecified</label>
+                </div>
+                <div class="form-check form-check pt-3">
+                  <input class="form-check-input" (change)="checkValueDiagnosis($event.target.value)" type="checkbox" id="R.06.02 Shortness of Breath" value="R.06.02 Shortness of Breath">
+                  <label class="form-check-label" for="R.06.02 Shortness of Breath">R.06.02 Shortness of Breath</label>
+                </div>
+                <div class="form-check form-check pt-3">
+                  <input class="form-check-input" (change)="checkValueDiagnosis($event.target.value)" type="checkbox" id="R06.00 Dyspnea, Unspecified" value="R06.00 Dyspnea, Unspecified">
+                  <label class="form-check-label" for="R06.00 Dyspnea, Unspecified">R06.00 Dyspnea, Unspecified</label>
+                </div>
+                <div class="form-check form-check pt-3">
+                  <input class="form-check-input" (change)="checkValueDiagnosis($event.target.value)" type="checkbox" id="J01.90 Acute Sinusitus, Unspecified" value="J01.90 Acute Sinusitus, Unspecified">
+                  <label class="form-check-label" for="J01.90 Acute Sinusitus, Unspecified">J01.90 Acute Sinusitus, Unspecified</label>
+                </div>
+                <div class="form-check form-check pt-3">
+                  <input class="form-check-input" (change)="checkValueDiagnosis($event.target.value)" type="checkbox" id="J00 Acute Nasopharyngitis" value="J00 Acute Nasopharyngitis">
+                  <label class="form-check-label" for="J00 Acute Nasopharyngitis">J00 Acute Nasopharyngitis</label>
+                </div>
+                <div class="form-check form-check pt-3">
+                  <input class="form-check-input" (change)="checkValueDiagnosis($event.target.value)" type="checkbox" id="J32.9 Unspecified Sinusitus, Chronic" value="J32.9 Unspecified Sinusitus, Chronic">
+                  <label class="form-check-label" for="J32.9 Unspecified Sinusitus, Chronic">J32.9 Unspecified Sinusitus, Chronic</label>
+                </div>
+                <div class="form-check form-check pt-3">
+                  <input class="form-check-input" (change)="checkValueDiagnosis($event.target.value)" type="checkbox" id="R09.3 Abnormal Sputum" value="R09.3 Abnormal Sputum">
+                  <label class="form-check-label" for="R09.3 Abnormal Sputum">R09.3 Abnormal Sputum</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label">Specimen Type:</label>
+              <div class="form-check form-check pt-2">
+                <input class="form-check-input" (change)="checkValueSpecimentType($event.target.value)" type="radio" name="speciment_type" id="Nasal swab" value="Nasal swab">
+                <label class="form-check-label" for="Nasal swab">Nasal swab</label>
+              </div>
+              <div class="form-check form-check pt-2">
+                <input class="form-check-input" (change)="checkValueSpecimentType($event.target.value)" type="radio" name="speciment_type" id="Nsasalpharygeal swab" value="Nsasalpharygeal swab">
+                <label class="form-check-label" for="Nsasalpharygeal swab">Nsasalpharygeal swab</label>
+              </div>
+              <div class="form-check form-check pt-2">
+                <input class="form-check-input" (change)="checkValueSpecimentType($event.target.value)" type="radio" name="speciment_type" id="Oral swab" value="Oral swab">
+                <label class="form-check-label" for="Oral swab">Oral swab</label>
+              </div>
+              <div class="form-check form-check pt-2">
+                <input class="form-check-input" (change)="checkValueSpecimentType($event.target.value)" type="radio" name="speciment_type" id="Sputum" value="Sputum">
+                <label class="form-check-label" for="Sputum">Sputum</label>
+              </div>
+              <br>
+              <label class="form-label">Specimen Site:</label>
+              <div class="form-check form-check pt-2">
+                <input class="form-check-input" (change)="checkValueSpecimentSite($event.target.value)" type="radio" name="speciment_site" id="Nasopharynx" value="Nasopharynx">
+                <label class="form-check-label" for="Nasopharynx">Nasopharynx</label>
+              </div>
+              <div class="form-check form-check pt-2">
+                <input class="form-check-input" (change)="checkValueSpecimentSite($event.target.value)" type="radio" name="speciment_site" id="???" value="???">
+                <label class="form-check-label" for="???">???</label>
+              </div>  
+                        
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label">Test Name</label>
+              <div class="form-check form-check pt-2">
+                <input class="form-check-input" (change)="checkValueTestName($event.target.value)" type="radio" name="test_name" id="SARS-CoV-2 (COVID-19) RT-PCR Test" value="SARS-CoV-2 (COVID-19) RT-PCR Test">
+                <label class="form-check-label" for="SARS-CoV-2 (COVID-19) RT-PCR Test">SARS-CoV-2 (COVID-19) RT-PCR Test</label>
+              </div>
+              
+              <div class="form-check form-check pt-2">
+                <input class="form-check-input" (change)="checkValueTestName($event.target.value)" type="radio" name="test_name" id="SARS-CoV-2 (COVID-19) Antibody, IgG/IgM" value="SARS-CoV-2 (COVID-19) Antibody, IgG/IgM">
+                <label class="form-check-label" for="SARS-CoV-2 (COVID-19) Antibody, IgG/IgM">SARS-CoV-2 (COVID-19) Antibody, IgG/IgM</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-5">
+              <label class="form-label">Payment Information</label>
+              <div class="form-check form-check pt-2">
+                <input class="form-check-input" (change)="checkValuePayment($event.target.value)" type="radio" name="payment_information" id="BTG will submit an invoice to the ordering clinician" value="BTG will submit an invoice to the ordering clinician">
+                <label class="form-check-label" for="BTG will submit an invoice to the ordering clinician">BTG will submit an invoice to the ordering clinician</label>
+              </div>
+              <div class="form-check form-check pt-2">
+                <input class="form-check-input" (change)="checkValuePayment($event.target.value)" type="radio" name="payment_information" id="Bill by BTG through Patient Insurance or goverment" value="Bill by BTG through Patient Insurance or goverment">
+                <label class="form-check-label" for="Bill by BTG through Patient Insurance or goverment">Bill by BTG through Patient Insurance or goverment</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="float-right">
+            <a class="btn btn-default font-weight-bold mr-2" routerLink="/ecommerce/products">Cancel</a>
+            <button type="submit" class="btn btn-primary font-weight-bold mr-2"
+             [disabled]="checkOrderValid()" >Save</button>
+          </div>
+        </form>
+      </div>
+      
+    </ng-container>
+  </div>
+</div>
